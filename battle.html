@@ -1,0 +1,189 @@
+<head>
+    <title>ExoConquer!</title>
+    <style>
+        body {
+            background-image: url(EXOCONQUER.jpg);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.315);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+
+        .container2 {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.315);
+            padding: 60px;
+            border-radius: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+
+        .health-bar-container {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            height: 30px;
+        }
+        .health-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #4caf50;
+            text-align: center;
+            vertical-align: middle;
+            text-shadow: #ddd;
+            line-height: 20px;
+            color: white;
+            border-radius: 10px;
+            padding: 0.2%;
+        }
+        button {
+            border-radius: 15%;
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            font-family: Cascadia Code Extralight;
+            cursor: pointer;
+            color: aquamarine;
+            background-color: rgba(0, 11, 59, 0.849);
+        }
+    </style>
+</head>
+<body style="background-color: rgb(0, 43, 71);">
+    <div class="container" id="loginPage">
+        <h2>Login</h2>
+        <label>Enter your name:</label>
+        <input type="text" id="userName">
+        <br><br>
+        <br>
+        <label>How many goals?:</label>
+        <input type="number" id="goalCount" min="1" value="3">
+        <br><br>
+        <button onclick="startTracker()">Start</button>
+    </div>
+
+    <div class="container2" id="trackerPage" style="display: none;">
+        <h2>Welcome, <span id="displayName"></span></h2>
+        <div class="health-bar-container">
+            <div class="health-bar" id="healthBar">0%</div>
+        </div>
+        <div id="goalList"></div>
+    </div>
+
+    <div class="container" id="battlePage" style="display: none;">
+        <h2>Battle the Alien!</h2>
+        <img id="alienImage" src="alien1.webp" alt="Alien" width="200">
+        <p>Alien Health: <span id="alienHealth">3</span></p>
+        <button onclick="attackAlien('Galactic Swing!')">Galactic Swing!</button>
+        <button onclick="attackAlien('Space Roundhouse!')">Space Roundhouse!</button>
+        <button onclick="attackAlien('Universal Punch!')">Universal Punch!</button>
+        <p id="battleMessage"></p>
+    </div>
+
+    <script>
+        let userGoals = [];
+        let completedGoals = 0;
+        let streak = 0;
+        let alienHealth = 3;
+        let alienImages = ["alien1.webp", "alien2.webp", "alien3.webp", "alien4.webp"];
+
+        function startTracker() {
+            let name = document.getElementById("userName").value;
+            let goalCount = parseInt(document.getElementById("goalCount").value);
+            if (!name) {
+                alert("Please enter your name");
+                return;
+            }
+            
+            document.getElementById("loginPage").style.display = "none";
+            document.getElementById("trackerPage").style.display = "block";
+            document.getElementById("displayName").innerText = name;
+            
+            let goalList = document.getElementById("goalList");
+            goalList.innerHTML = "";
+            userGoals = [];
+            completedGoals = 0;
+
+            for (let i = 1; i <= goalCount; i++) {
+                let goalItem = document.createElement("div");
+                goalItem.innerHTML = `
+                    <p>Goal ${i}: <button onclick="completeGoal(this)">Complete</button></p>
+                `;
+                goalList.appendChild(goalItem);
+                userGoals.push(false);
+            }
+        }
+
+        function completeGoal(button) {
+            button.disabled = true;
+            completedGoals++;
+            updateHealthBar();
+        }
+
+        function updateHealthBar() {
+            let totalGoals = userGoals.length;
+            let progress = (completedGoals / totalGoals) * 100;
+            let healthBar = document.getElementById("healthBar");
+            healthBar.style.width = progress + "%";
+            healthBar.innerText = Math.round(progress) + "%";
+            
+            if (progress === 100) {
+                alert("All goals completed! Get ready for battle!");
+                document.getElementById("trackerPage").style.display = "none";
+                document.getElementById("battlePage").style.display = "block";
+            }
+        }
+
+        function attackAlien(move) {
+            if (alienHealth > 0) {
+                alienHealth--;
+                document.getElementById("alienHealth").innerText = alienHealth;
+                document.getElementById("alienImage").src = alienImages[3 - alienHealth];
+                document.getElementById("battleMessage").innerText = "You used " + move + "!";
+            }
+
+            if (alienHealth === 0) {
+                alert("You defeated the alien! Start a new day to continue!");
+                document.getElementById("battlePage").innerHTML += '<button onclick="startNewDay()">Start a New Day</button>';
+            }
+        }
+
+        function startNewDay() {
+    streak++;
+    if (streak === 7) {
+        alert("Conquered aliens 7 times! Badge awarded!");
+    }
+
+    
+    completedGoals = 0;
+    let healthBar = document.getElementById("healthBar");
+    healthBar.style.width = "0%";
+    healthBar.innerText = "0%";
+
+    
+    alienHealth = 3;
+    document.getElementById("alienHealth").innerText = alienHealth;
+    document.getElementById("alienImage").src = "alien1.webp"; 
+
+    document.getElementById("battlePage").style.display = "none";
+    document.getElementById("loginPage").style.display = "block";
+}
+
+    </script>
+</body>
